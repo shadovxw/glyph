@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Weather and air quality (Open-Meteo) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Approximate location for the weather -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Next event -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- Screen time. A special access: the user turns it on in Settings (Usage access). -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+    <!-- Steps, through Health Connect -->
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <!-- Names of paired Bluetooth audio devices on the Music page -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Swipe down on home pulls down the system notification shade -->
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
+    <!-- "Focus done" when the Pomodoro tile's 25 minutes are over -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <uses-feature
+        android:name="android.software.live_wallpaper"
+        android:required="false" />
+
+    <queries>
+        <!-- The drawer lists installed launchable apps -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <!-- Health Connect on Android 13 and older -->
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
+
+    <application
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Glyph.Wallpaper">
+
+        <!-- Launcher -->
+        <activity
+            android:name=".launcher.HomeActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.Glyph.Wallpaper">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Health Connect asks every app that reads health data to explain why (shown from its permission screen) -->
+        <activity
+            android:name=".launcher.PermissionsRationaleActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Glyph.Wallpaper">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
+            android:targetActivity=".launcher.PermissionsRationaleActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Switched on with "Notification access"; it is what lets Glyph see what the music app is playing -->
+        <service
+            android:name=".services.GlyphNotificationListener"
+            android:exported="true"
+            android:label="Glyph"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- Quick Settings tiles (DESIGN.md 7) -->
+        <service
+            android:name=".tiles.HotspotQrTile"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_hotspot_qr"
+            android:label="Hotspot QR"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".tiles.GlyphModeTile"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_mode"
+            android:label="Glyph mode"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".tiles.FocusTile"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_focus"
+            android:label="Focus"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".tiles.HomelabTile"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_homelab"
+            android:label="Homelab"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".tiles.GpayScanTile"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_scan"
+            android:label="GPay scan"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- Screens and receivers the tiles use -->
+        <activity
+            android:name=".tiles.HotspotQrActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Glyph.Wallpaper" />
+        <activity
+            android:name=".tiles.GpayScanActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <receiver
+            android:name=".tiles.FocusReceiver"
+            android:exported="false" />
+
+        <!-- Live wallpaper: Bloom and wind (DESIGN.md 5B) -->
+        <service
+            android:name=".wallpaper.BloomWallpaperService"
+            android:exported="true"
+            android:label="Bloom and wind"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/bloom_wallpaper" />
+        </service>
+
+    </application>
+</manifest>
